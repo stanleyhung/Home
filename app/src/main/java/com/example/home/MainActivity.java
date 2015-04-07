@@ -29,14 +29,14 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	//private final static String macAddress = "00.1D.60.88.57.46"; //desktop
-	private final static String macAddress = "7C.E9.D3.20.78.5E"; //laptop
+	private final static String macAddress = "00.1D.60.88.57.46"; //desktop
+	//private final static String macAddress = "7C.E9.D3.20.78.5E"; //laptop
 	private final static int PORT = 9; //Wake-On Lan port
 	public final static String LOG_TAG = "HOME";
 	private final static String HOME = "\"Stanley\"";
 	private final static int TIMEOUT = 100;
-	//private final static String staticIpAddress = "192.168.1.127"; //desktop
-    private final static String staticIpAddress = "192.168.56.1"; //laptop
+	private final static String staticIpAddress = "192.168.1.127"; //desktop
+    //private final static String staticIpAddress = "192.168.56.1"; //laptop
 	
 	private TextView wakeButton;
 	private TextView startRemoteButton;
@@ -147,12 +147,10 @@ public class MainActivity extends Activity {
     private class Output {
     	private String type;
     	private boolean success;
-        private InetAddress address;
-    	
-    	public Output(String type, boolean success, InetAddress address) {
+
+    	public Output(String type, boolean success) {
     		this.type = type;
     		this.success = success;
-            this.address = address;
     	}
     	
     	public String getType() {
@@ -162,10 +160,6 @@ public class MainActivity extends Activity {
     	public boolean getSuccess() {
     		return success;
     	}
-
-        public InetAddress getAddress() {
-            return address;
-        }
     }
 
     /**
@@ -222,19 +216,22 @@ public class MainActivity extends Activity {
     	return output;
     }
     
-    private class ExecuteMediaControl extends AsyncTask<String, Void, ArrayList<Output>> {
+    private class ExecuteMediaControl extends AsyncTask<String, Void, Output> {
 
 		@Override
-		protected ArrayList<Output> doInBackground(String... cmd) {
-            ArrayList<Output> output = new ArrayList<Output>();
+		protected Output doInBackground(String... cmd) {
+
+            if (remoteComputer == null) {
+                findAllRemoteComputers();
+            }
+
 			//send the 'cmd' message to the remote computer
             //TODO: add in an intermediate step before media controls are possible so we don't have to
             //send packets to each possibleRemoteComputer.
-            for (InetAddress remoteComputer : possibleRemoteComputers) {
                 try {
                     if (remoteComputer == null) {
                         Log.e(MainActivity.LOG_TAG, "Error - Could not find remoteComputer on Network");
-                        output.add(new Output(cmd[0], false, remoteComputer));
+                        return new Output(cmd[0], false);
                     }
                     Log.d(MainActivity.LOG_TAG, "Debug - Sending media control packet to :" + remoteComputer);
                     Socket connection = new Socket(remoteComputer, PORT);
@@ -245,20 +242,18 @@ public class MainActivity extends Activity {
                     connection.close();
                 } catch (UnknownHostException e) {
                     Log.e(MainActivity.LOG_TAG, "Error - Unknown host");
-                    output.add(new Output(cmd[0], false, remoteComputer));
+                    return new Output(cmd[0], false);
                 } catch (IOException e) {
                     Log.e(MainActivity.LOG_TAG, "Error - IO Exception");
                     Log.e(MainActivity.LOG_TAG, e.getMessage());
-                    output.add(new Output(cmd[0], false, remoteComputer));
+                    return new Output(cmd[0], false);
                 }
-                output.add(new Output(cmd[0], true, remoteComputer));
-            }
-            return output;
+            return new Output(cmd[0], true);
 		}
 
-		protected void onPostExecute(ArrayList<Output> result) {
+		protected void onPostExecute(Output result) {
 			TextView correctButton = null;
-			String buttonName = result.get(0).getType();
+			String buttonName = result.getType();
 			if (buttonName.equals(Message.MAGIC)) {
 				correctButton = startRemoteButton;
 			} else if(buttonName.equals(Message.PLAY)) {
@@ -274,19 +269,13 @@ public class MainActivity extends Activity {
 			} else {
 				startRemoteButton.setText("FAILURE - FATAL, BAD BAD BAD");
 			}
-            //TODO: see doInBackground TODO
-            boolean success = false;
-            for (Output o : result) {
-                if (o.getSuccess() == true) {
-                    success = true;
-                } else {
-                    possibleRemoteComputers.remove(o.getAddress());
-                }
+
+			if (!result.getSuccess()) {
+				correctButton.setText("FAILURE - Could not send packet");
+			} else {
+                correctButton.setText("Success!");
             }
 
-			if (!success) {
-				correctButton.setText("FAILURE - Could not send packet");
-			}
 			//reset button's text after 3 seconds
 			final TextView button = correctButton;
 			final String buttonText = buttonName;
