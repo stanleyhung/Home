@@ -29,13 +29,14 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	private final static String macAddress = "00.1D.60.88.57.46";
-	//private final static String macAddress = "7C.E9.D3.20.78.5E";
+	//private final static String macAddress = "00.1D.60.88.57.46"; //desktop
+	private final static String macAddress = "7C.E9.D3.20.78.5E"; //laptop
 	private final static int PORT = 9; //Wake-On Lan port
 	public final static String LOG_TAG = "HOME";
 	private final static String HOME = "\"Stanley\"";
 	private final static int TIMEOUT = 100;
-	private static String staticIpAddress = "192.168.1.127";
+	//private final static String staticIpAddress = "192.168.1.127"; //desktop
+    private final static String staticIpAddress = "192.168.56.1"; //laptop
 	
 	private TextView wakeButton;
 	private TextView startRemoteButton;
