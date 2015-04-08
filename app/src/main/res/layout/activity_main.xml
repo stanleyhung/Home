@@ -72,4 +72,20 @@
         android:text="@string/random" 
         android:onClick="handleRandom"/>
 
+    <Button
+        android:id="@+id/volumeUpButton"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/volume_up"
+        android:onClick="handleVolumeUp"/>
+
+    <Button
+        android:id="@+id/volumeDownButton"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/volume_down"
+        android:onClick="handleVolumeDown"/>
+
 </LinearLayout>

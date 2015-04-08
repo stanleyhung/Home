@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 	public final static String LOG_TAG = "HOME";
 	private final static String HOME = "\"Stanley\"";
 	private final static int TIMEOUT = 100;
-	private final static String staticIpAddress = "192.168.1.127"; //desktop
+	private final static String staticIpAddress = "192.168.1.127"; //deskrrtop
     //private final static String staticIpAddress = "192.168.56.1"; //laptop
 	
 	private TextView wakeButton;
@@ -45,6 +45,8 @@ public class MainActivity extends Activity {
 	private TextView previousButton;
 	private TextView quitButton;
 	private TextView randomButton;
+    private TextView volumeUpButton;
+    private TextView volumeDownButton;
 	private static InetAddress remoteComputer;
     private final static ArrayList<InetAddress> possibleRemoteComputers = new ArrayList<InetAddress>();
 	
@@ -59,6 +61,8 @@ public class MainActivity extends Activity {
         previousButton = (TextView) findViewById(R.id.previousButton);
         quitButton = (TextView) findViewById(R.id.quitButton);
         randomButton = (TextView) findViewById(R.id.randomButton);
+        volumeUpButton = (TextView) findViewById(R.id.volumeUpButton);
+        volumeDownButton = (TextView) findViewById(R.id.volumeDownButton);
     }
 
     @Override
@@ -132,6 +136,10 @@ public class MainActivity extends Activity {
     public void handleRandom(View view) {
     	sendMessage(Message.RANDOM);
     }
+
+    public void handleVolumeUp(View view) { sendMessage(Message.VOLUME_UP);}
+
+    public void handleVolumeDown(View view) {sendMessage(Message.VOLUME_DOWN);}
     
     //initializes the logic to send a packet to the computer
     public void sendMessage(String message) {
@@ -265,7 +273,11 @@ public class MainActivity extends Activity {
 			} else if(buttonName.equals(Message.QUIT)) {
 				correctButton = quitButton;
 			} else if (buttonName.equals(Message.RANDOM)) {
-				correctButton = randomButton;
+                correctButton = randomButton;
+            } else if (buttonName.equals(Message.VOLUME_UP)) {
+                correctButton = volumeUpButton;
+            } else if (buttonName.equals(Message.VOLUME_DOWN)) {
+                correctButton = volumeDownButton;
 			} else {
 				startRemoteButton.setText("FAILURE - FATAL, BAD BAD BAD");
 			}
@@ -354,12 +366,14 @@ public class MainActivity extends Activity {
     
     //Class for communication with remote computer
     private class Message {
-    	final static String PLAY = "play";
-    	final static String NEXT = "next";
-    	final static String PREVIOUS = "previous";
-    	final static String QUIT = "quit";
-    	final static String MAGIC = "Turn On";
-    	final static String RANDOM = "random";
+    	final static String PLAY = "Play";
+    	final static String NEXT = "Next";
+    	final static String PREVIOUS = "Previous";
+    	final static String QUIT = "Quit";
+    	final static String MAGIC = "Turn On VLC";
+    	final static String RANDOM = "Toggle Random";
+        final static String VOLUME_UP = "Volume Up";
+        final static String VOLUME_DOWN = "Volume Down";
     	
     	private String myMessage;
     	

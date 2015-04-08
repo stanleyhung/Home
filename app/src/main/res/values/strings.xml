@@ -12,5 +12,7 @@
     <string name="previous">Previous</string>
     <string name="quit">Quit</string>
     <string name="random">Random</string>
+    <string name="volume_up">Volume Up</string>
+    <string name="volume_down">Volume Down</string>
 
 </resources>
