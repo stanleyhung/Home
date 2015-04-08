@@ -294,12 +294,11 @@ public class MainActivity extends Activity {
      * Since we don't know exactly what network address we are trying to wake, we keep track of all
      * successes or failures using a hashmap.
      */
-    private class ExecuteWake extends AsyncTask<Void, Void, HashMap<InetAddress, Boolean>> {
+    private class ExecuteWake extends AsyncTask<Void, Void, Boolean> {
 
 		@Override
-		protected HashMap<InetAddress, Boolean> doInBackground(Void... params) {
+		protected Boolean doInBackground(Void... params) {
             // Create the magic packet using the macAddress of the computer we're looking for.
-            HashMap<InetAddress, Boolean> output = new HashMap<InetAddress, Boolean>();
 			byte[] macAddressBytes = getAddressBytes(macAddress, 16);
 			byte[] bytes = new byte[6 + 16*macAddressBytes.length];
 
@@ -313,7 +312,7 @@ public class MainActivity extends Activity {
 
             findAllRemoteComputers();
 
-            for (InetAddress ipAddress : possibleRemoteComputers) {
+            InetAddress ipAddress = remoteComputer;
                 try {
                     Log.d(MainActivity.LOG_TAG, "Debug - sending packet to : " + ipAddress);
                     DatagramPacket packet = new DatagramPacket(bytes, bytes.length, ipAddress,80);
@@ -322,33 +321,23 @@ public class MainActivity extends Activity {
                     socket.close();
                 } catch(UnknownHostException e) {
                     Log.e(MainActivity.LOG_TAG, "Error - Unknown host");
-                    output.put(ipAddress, false);
+                    return false;
                 } catch(SocketException e) {
                     Log.e(MainActivity.LOG_TAG, "Error - Socket Exception");
                     Log.e(MainActivity.LOG_TAG, e.getMessage());
-                    output.put(ipAddress, false);
+                    return false;
                 } catch(IOException e) {
                     Log.e(MainActivity.LOG_TAG, "Error - IO Exception");
-                    output.put(ipAddress, false);
+                    return false;
                 }
-                output.put(ipAddress, true);
-            }
-            return output;
+            return true;
 		}
 		
 		// onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(HashMap<InetAddress, Boolean> result) {
-            boolean packetSent = false; // was a wake packet successfully sent somewhere?
-            for (Map.Entry<InetAddress, Boolean> entry : result.entrySet()) {
-                if (entry.getValue() == false) {
-                    possibleRemoteComputers.remove(entry.getKey());
-                } else {
-                    packetSent = true;
-                }
-            }
-        	if (packetSent == true) {
-        		wakeButton.setText("Success!");
+        protected void onPostExecute(Boolean result) {
+            if (result == true) {
+        		wakeButton.setText("Packet Sent!");
         		Handler h = new Handler();
         		h.postDelayed(new Runnable() { 
         	         public void run() { 
